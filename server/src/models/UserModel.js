@@ -13,15 +13,27 @@ const UserSchema = new Schema(
       unique: true,
       lowercase: true,
     },
+    phone: {
+      type: String,
+      required: true,
+    },
+    address: {
+      type: String,
+      required: true,
+    },
+    gender: {
+      type: String,
+      required: true,
+    },
     password: {
       type: String,
       required: true,
     },
     role: {
       type: String,
-      enum: ["admin", "user"],
       default: "user",
     },
+
   },
   {
     timestamps: true,

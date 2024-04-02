@@ -1,5 +1,6 @@
-import booksRouter from "./books.js";
+import booksRouter from "./book.js";
 import authRouter from "./auth.js";
+import roleRouter from "./role.js";
 
 const routers = (app) => {
   app.get("/", (req, res) => {
@@ -7,6 +8,8 @@ const routers = (app) => {
   });
   app.use("/books", booksRouter);
   app.use("/api", authRouter);
+  app.use("/api/roles", roleRouter);
+
 
 };
 
