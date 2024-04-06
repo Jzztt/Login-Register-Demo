@@ -6,6 +6,7 @@ const UserSchema = new Schema(
     username: {
       type: String,
       required: true,
+      unique: true,
     },
     email: {
       type: String,
@@ -15,11 +16,11 @@ const UserSchema = new Schema(
     },
     phone: {
       type: String,
-      required: true,
+      default: "",
     },
     address: {
       type: String,
-      required: true,
+      default: "",
     },
     gender: {
       type: String,
@@ -30,10 +31,10 @@ const UserSchema = new Schema(
       required: true,
     },
     role: {
-      type: String,
-      default: "user",
+      type: Schema.Types.ObjectId,
+      ref: "Role",
+      required: true,
     },
-
   },
   {
     timestamps: true,

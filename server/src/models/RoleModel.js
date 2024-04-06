@@ -8,7 +8,7 @@ const RoleSchema = new Schema(
       required: true,
       unique: true,
     },
-    decription: {
+    description: {
       type: String,
       default: "",
     },

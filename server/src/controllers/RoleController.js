@@ -15,14 +15,19 @@ class RoleController {
         const errors = error.details.map((err) => err.message);
         return res.status(400).json({
           success: false,
-          message: errors,
+          message: errors[0],
         });
       }
-      const newRole = Role.create({
+
+      const checkRole = await Role.findOne({ name });
+      if (checkRole) {
+        throw new Error("Role already exists");
+      }
+      const newRole = await Role.create({
         name,
         description,
         status,
-      })
+      });
       res.status(201).json({
         data: [newRole],
         success: true,
