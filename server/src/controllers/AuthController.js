@@ -3,6 +3,7 @@ import {
   loginSchemaValidation,
 } from "../validations/auth.js";
 import User from "../models/UserModel.js";
+import Role from "../models/RoleModel.js";
 import BadRequestException from "../exceptions/errors/BadRequestException.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -19,10 +20,7 @@ class AuthController {
       );
       if (error) {
         const errors = error.details.map((err) => err.message);
-        return res.status(400).json({
-          success: false,
-          message: errors,
-        });
+        throw new BadRequestException(errors);
       }
       const user = await User.findOne({ email });
       if (!user) {
@@ -34,7 +32,7 @@ class AuthController {
       }
       const { ACCESS_TOKEN_EXPIRE, ACCESS_TOKEN_SECRET } = process.env;
       const accessToken = jwt.sign(
-        { _id: user._id, username: user.username, role: user.role },
+        { id: user._id, username: user.username, role: user.role },
         ACCESS_TOKEN_SECRET,
         {
           expiresIn: ACCESS_TOKEN_EXPIRE,
@@ -58,9 +56,10 @@ class AuthController {
 
   async register(req, res) {
     try {
-      const { username, email, password, role } = req.body;
+      const { username, email, password, roleId, gender, phone, address } =
+        req.body;
       const { error } = registerSchemaValidation.validate(
-        { username, email, password },
+        { username, email, password, roleId, gender, phone, address },
         {
           abortEarly: false,
         }
@@ -70,32 +69,38 @@ class AuthController {
         const errors = error.details.map((err) => err.message);
         return res.status(400).json({
           success: false,
-          message: errors,
+          message: errors[0],
         });
       }
       const checkEmail = await User.findOne({ email });
       if (checkEmail) {
-        throw new BadRequestException("Email đã tồn tại");
+        throw new  BadRequestException("Email đã tồn tại");
       }
+
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
+      const userRole = await Role.findById(roleId);
+      if (!userRole) {
+        throw new BadRequestException("Role not found");
+      }
       const user = await User.create({
         username,
         email,
         password: hashedPassword,
-        role: role ? role : "user",
+        gender,
+        phone,
+        address,
+        roleId: role._id,
       });
 
-      const { _id, username: usernameUser, email: emailUser } = user;
       res.status(201).json({
-        data: [{ _id, username: usernameUser, email: emailUser }],
         success: true,
         message: "Create user successfully",
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: "Something went wrong",
+        message: error.message,
       });
     }
   }
